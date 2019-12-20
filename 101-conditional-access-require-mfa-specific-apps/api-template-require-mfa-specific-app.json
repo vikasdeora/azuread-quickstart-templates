@@ -1,0 +1,44 @@
+{
+    "@odata.context": "https://graph.microsoft.com/beta/$metadata#conditionalAccess/policies",
+    "value": [
+        {
+            "displayName": "Security Templates: Require MFA Specific App",
+            "createdDateTime": null,
+            "modifiedDateTime": null,
+            "state": "enabled",
+            "sessionControls": null,
+            "conditions": {
+                "signInRiskLevels": [],
+                "clientAppTypes": [],
+                "platforms": null,
+                "locations": null,
+                "deviceStates": null,
+                "applications": {
+                    "includeApplications": [
+                        "d22b95ba-e2c7-4749-90fb-4869d75c87c2"
+                    ],
+                    "excludeApplications": [],
+                    "includeUserActions": []
+                },
+                "users": {
+                    "includeUsers": [
+                        "f7810331-366b-4dc5-b3c6-c2b14fa3f1c8"
+                    ],
+                    "excludeUsers": [],
+                    "includeGroups": [],
+                    "excludeGroups": [],
+                    "includeRoles": [],
+                    "excludeRoles": []
+                }
+            },
+            "grantControls": {
+                "operator": "OR",
+                "builtInControls": [
+                    "mfa"
+                ],
+                "customAuthenticationFactors": [],
+                "termsOfUse": []
+            }
+        }
+    ]
+}

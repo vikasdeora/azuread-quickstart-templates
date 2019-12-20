@@ -1,0 +1,170 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_101_conditional_access_require_mfa_specific_apps_name": {
+            "defaultValue": "101-conditional-access-require-mfa-specific-apps",
+            "type": "String"
+        },
+	"audience": {
+            "defaultValue": "audienceValue",
+            "type": "String"
+        },
+	"clientID": {
+            "defaultValue": "clientIDValue",
+            "type": "String"
+        },
+	"clientSecret": {
+            "defaultValue": "clientSecretValue",
+            "type": "String"
+        },
+	"conditionalAccessBaseUrl": {
+            "defaultValue": "conditionalAccess/policies",
+            "type": "String"
+        },
+	"includeApplications": {
+            "defaultValue": [],
+            "type": "Array"
+        },
+	"includeUsers": {
+            "defaultValue": [],
+            "type": "Array"
+        },
+	"msGraphVersion": {
+            "defaultValue": "beta",
+            "type": "String"
+        },
+	"tenantID": {
+            "defaultValue": "tenantIDValue",
+            "type": "String"
+        }
+	
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_101_conditional_access_require_mfa_specific_apps_name')]",
+            "location": "centralus",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "audience": {
+                            "defaultValue": "[parameters('audience')]",
+                            "type": "String"
+                        },
+                        "clientID": {
+                            "defaultValue": "[parameters('clientID')]",
+                            "type": "String"
+                        },
+                        "clientSecret": {
+                            "defaultValue": "[parameters('clientSecret')]",
+                            "type": "SecureString"
+                        },
+                        "conditionalAccessBaseUrl": {
+                            "defaultValue": "[parameters('conditionalAccessBaseUrl')]",
+                            "type": "String"
+                        },
+                        "includeApplications": {
+                            "defaultValue": "[parameters('includeApplications')]",
+                            "type": "Array"
+                        },
+                        "includeUsers": {
+                            "defaultValue": "[parameters('includeUsers')]",
+                            "type": "Array"
+                        },
+                        "msGraphVersion": {
+                            "defaultValue": "[parameters('msGraphVersion')]",
+                            "type": "String"
+                        },
+                        "tenantID": {
+                            "defaultValue": "[parameters('tenantID')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App": {
+                            "runAfter": {},
+                            "type": "Compose",
+                            "inputs": {
+                                "value": [
+                                    {
+                                        "conditions": {
+                                            "applications": {
+                                                "excludeApplications": [],
+                                                "includeApplications": "@parameters('includeApplications')",
+                                                "includeUserActions": []
+                                            },
+                                            "clientAppTypes": [],
+                                            "deviceStates": null,
+                                            "locations": null,
+                                            "platforms": null,
+                                            "signInRiskLevels": [],
+                                            "users": {
+                                                "excludeGroups": [],
+                                                "excludeRoles": [],
+                                                "excludeUsers": [],
+                                                "includeGroups": [],
+                                                "includeRoles": [],
+                                                "includeUsers": "@parameters('includeUsers')"
+                                            }
+                                        },
+                                        "displayName": "Security Templates: Require MFA Specific App",
+                                        "grantControls": {
+                                            "builtInControls": [
+                                                "mfa"
+                                            ],
+                                            "customAuthenticationFactors": [],
+                                            "operator": "OR",
+                                            "termsOfUse": []
+                                        },
+                                        "sessionControls": null,
+                                        "state": "enabled"
+                                    }
+                                ]
+                            }
+                        },
+                        "[POST]_Security_Templates:_Require_MFA_Specific_App": {
+                            "runAfter": {
+                                "Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "@parameters('audience')",
+                                    "clientId": "@parameters('clientID')",
+                                    "secret": "@parameters('clientSecret')",
+                                    "tenant": "@parameters('tenantID')",
+                                    "type": "ActiveDirectoryOAuth"
+                                },
+                                "body": "@outputs('Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App')",
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "method": "POST",
+                                "uri": "https://graph.microsoft.com/@{parameters('msGraphVersion')}/@{parameters('conditionalAccessBaseUrl')}"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}

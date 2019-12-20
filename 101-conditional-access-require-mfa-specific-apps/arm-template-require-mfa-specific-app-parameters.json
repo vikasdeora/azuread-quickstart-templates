@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_101_conditional_access_require_mfa_specific_apps_name": {
+            "value": "101_conditional_access_require_mfa_specific_apps_name"
+        },
+	"audience": {
+            "value": "audienceValue",
+        },
+	"clientID": {
+            "value": "clientIDValue",
+        },
+	"clientSecret": {
+            "value": "clientSecretValue",
+        },
+	"conditionalAccessBaseUrl": {
+            "value": "conditionalAccess/policies",
+        },
+	"includeApplications": {
+            "value": [],
+        },
+	"includeUsers": {
+            "value": [],
+        },
+	"msGraphVersion": {
+            "value": "beta",
+        },
+	"tenantID": {
+            "value": "tenantIDValue",
+        }
+    }
+}
