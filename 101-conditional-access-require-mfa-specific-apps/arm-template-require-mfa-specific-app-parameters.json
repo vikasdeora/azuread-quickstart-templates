@@ -6,28 +6,28 @@
             "value": "101_conditional_access_require_mfa_specific_apps_name"
         },
 	"audience": {
-            "value": "audienceValue",
+            "value": "audienceValue"
         },
 	"clientID": {
-            "value": "clientIDValue",
+            "value": "clientIDValue"
         },
 	"clientSecret": {
-            "value": "clientSecretValue",
+            "value": "clientSecretValue"
         },
 	"conditionalAccessBaseUrl": {
-            "value": "conditionalAccess/policies",
+            "value": "conditionalAccess/policies"
         },
 	"includeApplications": {
-            "value": [],
+            "value": []
         },
-	"includeUsers": {
-            "value": [],
+	"includeGroups": {
+            "value": []
         },
 	"msGraphVersion": {
-            "value": "beta",
+            "value": "beta"
         },
 	"tenantID": {
-            "value": "tenantIDValue",
+            "value": "tenantIDValue"
         }
     }
 }

@@ -26,7 +26,7 @@
             "defaultValue": [],
             "type": "Array"
         },
-	"includeUsers": {
+	"includeGroups": {
             "defaultValue": [],
             "type": "Array"
         },
@@ -73,8 +73,8 @@
                             "defaultValue": "[parameters('includeApplications')]",
                             "type": "Array"
                         },
-                        "includeUsers": {
-                            "defaultValue": "[parameters('includeUsers')]",
+                        "includeUGroups": {
+                            "defaultValue": "[parameters('includeGroups')]",
                             "type": "Array"
                         },
                         "msGraphVersion": {
@@ -113,14 +113,14 @@
                                             "locations": null,
                                             "platforms": null,
                                             "signInRiskLevels": [],
-                                            "users": {
-                                                "excludeGroups": [],
-                                                "excludeRoles": [],
-                                                "excludeUsers": [],
-                                                "includeGroups": [],
-                                                "includeRoles": [],
-                                                "includeUsers": "@parameters('includeUsers')"
-                                            }
+                                          "users": {
+                                            "excludeGroups": [],
+                                            "excludeRoles": [],
+                                            "excludeUsers": [],
+                                            "includeGroups": "@parameters('includeGroups')",
+                                            "includeRoles": [],
+                                            "includeUsers": []
+                                          }
                                         },
                                         "displayName": "Security Templates: Require MFA Specific App",
                                         "grantControls": {
