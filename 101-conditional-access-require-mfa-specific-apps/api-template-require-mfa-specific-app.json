@@ -2,7 +2,7 @@
     "@odata.context": "https://graph.microsoft.com/beta/$metadata#conditionalAccess/policies",
     "value": [
         {
-            "displayName": "Security Templates: Require MFA Specific App",
+            "displayName": "Security Templates: Require MFA for specific app",
             "createdDateTime": null,
             "modifiedDateTime": null,
             "state": "enabled",
