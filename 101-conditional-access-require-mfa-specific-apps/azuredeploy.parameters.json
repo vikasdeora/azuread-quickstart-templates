@@ -4,7 +4,7 @@
     "parameters": {
         "policyName": 
 	{
-            "value": "security template: require mfa"
+            "value": "security template require mfa"
         },
 	"audience": {
             "value": "audienceValue",
