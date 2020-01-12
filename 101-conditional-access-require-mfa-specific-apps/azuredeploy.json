@@ -2,9 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workflows_101_conditional_access_require_mfa_specific_apps_name": 
+        "policyName": 
 	{
-            "defaultValue": "101-conditional-access-require-mfa-specific-apps",
+            "defaultValue": "security template: require mfa specific apps",
             "type": "String"
         },
 	"audience": {
@@ -46,7 +46,7 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_101_conditional_access_require_mfa_specific_apps_name')]",
+            "name": "[parameters('policyName')]",
             "location": "centralus",
             "properties": {
                 "state": "Enabled",
