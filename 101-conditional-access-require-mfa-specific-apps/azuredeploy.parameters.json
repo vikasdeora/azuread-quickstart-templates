@@ -2,9 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workflows_101_conditional_access_require_mfa_specific_apps_name": 
+        "policyName": 
 	{
-            "value": "101_conditional_access_require_mfa_specific_apps_name"
+            "value": "security template: require mfa"
         },
 	"audience": {
             "value": "audienceValue",
