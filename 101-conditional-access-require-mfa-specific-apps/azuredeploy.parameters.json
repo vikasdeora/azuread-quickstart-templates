@@ -28,7 +28,7 @@
             "value": "beta",
         },
 	"tenantID": {
-            "value": "tenantIDValue",
+            "value": "tenantIDValue"
         }
     }
 }
