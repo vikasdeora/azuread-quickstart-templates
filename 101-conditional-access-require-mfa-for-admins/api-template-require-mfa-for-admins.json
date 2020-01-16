@@ -1,1 +1,49 @@
 
+{
+           
+            "displayName": "Baseline policy (Migrated): Require MFA for admins",
+            "createdDateTime": null,
+            "modifiedDateTime": null,
+            "state": "enabledForReportingButNotEnforced",
+            "sessionControls": null,
+            "conditions": {
+                "signInRiskLevels": [],
+                "clientAppTypes": [],
+                "platforms": null,
+                "locations": null,
+                "deviceStates": null,
+                "applications": {
+                    "includeApplications": [
+                        "All"
+                    ],
+                    "excludeApplications": [],
+                    "includeUserActions": []
+                },
+                "users": {
+                    "includeUsers": [],
+                    "excludeUsers": [],
+                    "includeGroups": [],
+                    "excludeGroups": [],
+                    "includeRoles": [
+                        "62e90394-69f5-4237-9190-012177145e10",
+                        "f28a1f50-f6e7-4571-818b-6a12f2af6b6c",
+                        "29232cdf-9323-42fd-ade2-1d097af3e4de",
+                        "b1be1c3e-b65d-4f19-8427-f6fa0d97feb9",
+                        "194ae4cb-b126-40b2-bd5b-6091b380977d",
+                        "729827e3-9c14-49f7-bb1b-9608f156bbb8",
+                        "966707d0-3269-4727-9be2-8c3a10f19b9d",
+                        "b0f54661-2d74-4c50-afa3-1ec803f12efe",
+                        "fe930be7-5e62-47db-91af-98c3a49a38b1"
+                    ],
+                    "excludeRoles": []
+                }
+            },
+            "grantControls": {
+                "operator": "OR",
+                "builtInControls": [
+                    "mfa"
+                ],
+                "customAuthenticationFactors": [],
+                "termsOfUse": []
+            }
+}
