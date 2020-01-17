@@ -1,6 +1,5 @@
  {
-            "id": "51625aa6-6d62-4fc6-9380-5e1b7ce0b91b",
-            "displayName": "Migrated policy: Block legacy authentication",
+            "displayName": "Security Template: Block legacy authentication",
             "createdDateTime": null,
             "modifiedDateTime": null,
             "state": "enabledForReportingButNotEnforced",
