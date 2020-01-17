@@ -1,0 +1,44 @@
+ {
+            "id": "51625aa6-6d62-4fc6-9380-5e1b7ce0b91b",
+            "displayName": "Migrated policy: Block legacy authentication",
+            "createdDateTime": null,
+            "modifiedDateTime": null,
+            "state": "enabledForReportingButNotEnforced",
+            "sessionControls": null,
+            "conditions": {
+                "signInRiskLevels": [],
+                "clientAppTypes": [
+                    "other"
+                ],
+                "platforms": null,
+                "locations": null,
+                "deviceStates": null,
+                "applications": {
+                    "includeApplications": [
+                        "All"
+                    ],
+                    "excludeApplications": [],
+                    "includeUserActions": []
+                },
+                "users": {
+                    "includeUsers": [
+                        "All"
+                    ],
+                    "excludeUsers": [],
+                    "includeGroups": [],
+                    "excludeGroups": [],
+                    "includeRoles": [],
+                    "excludeRoles": [
+                        "62e90394-69f5-4237-9190-012177145e10"
+                    ]
+                }
+            },
+            "grantControls": {
+                "operator": "OR",
+                "builtInControls": [
+                    "block"
+                ],
+                "customAuthenticationFactors": [],
+                "termsOfUse": []
+            }
+}
