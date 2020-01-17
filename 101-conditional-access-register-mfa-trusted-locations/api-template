@@ -1,0 +1,46 @@
+{
+            "displayName": "Security Template: Register for Azure Multi-Factor Authentication from Trusted Locations",
+            "createdDateTime": null,
+            "modifiedDateTime": null,
+            "state": "enabledForReportingButNotEnforced",
+            "sessionControls": null,
+            "conditions": {
+                "signInRiskLevels": [],
+                "clientAppTypes": [],
+                "platforms": null,
+                "deviceStates": null,
+                "applications": {
+                    "includeApplications": [],
+                    "excludeApplications": [],
+                    "includeUserActions": [
+                        "urn:user:registersecurityinfo"
+                    ]
+                },
+                "users": {
+                    "includeUsers": [
+                        "All"
+                    ],
+                    "excludeUsers": [],
+                    "includeGroups": [],
+                    "excludeGroups": [],
+                    "includeRoles": [],
+                    "excludeRoles": []
+                },
+                "locations": {
+                    "includeLocations": [
+                        "All"
+                    ],
+                    "excludeLocations": [
+                        "AllTrusted"
+                    ]
+                }
+            },
+            "grantControls": {
+                "operator": "OR",
+                "builtInControls": [
+                    "block"
+                ],
+                "customAuthenticationFactors": [],
+                "termsOfUse": []
+            }
+}
