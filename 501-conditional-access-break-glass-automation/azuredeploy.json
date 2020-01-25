@@ -1,1 +1,780 @@
-{}
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_BreakGlassAccountForConditionalAccess_name": {
+            "defaultValue": "BreakGlassAccountForConditionalAccess",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_BreakGlassAccountForConditionalAccess_name')]",
+            "location": "centralus",
+            
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "keyvaultAzureFiles": {
+                            "defaultValue": "",
+                            "type": "SecureString"
+                        },
+                        "keyvaultBCSecret": {
+                            "defaultValue": "",
+                            "type": "SecureString"
+                        },
+                        "keyvaultBCUsername": {
+                            "defaultValue": "",
+                            "type": "SecureString"
+                        },
+                        "keyvaultBreakGlassObjectId": {
+                            "defaultValue": "",
+                            "type": "SecureString"
+                        },
+                        "keyvaultClientID": {
+                            "defaultValue": "",
+                            "type": "SecureString"
+                        },
+                        "keyvaultClientSecret": {
+                            "defaultValue": "",
+                            "type": "SecureString"
+                        },
+                        "keyvaultTenantID": {
+                            "defaultValue": "",
+                            "type": "SecureString"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Hour",
+                                "interval": 1,
+                                "startTime": "2020-01-18T18:00:00",
+                                "timeZone": "GMT Standard Time"
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "For_each": {
+                            "foreach": "@body('Parse_response_containing_all_CA_policies')?['value']",
+                            "actions": {
+                                "Check_if_the_conditional_access_policy_contains_the_break_glass_account": {
+                                    "actions": {},
+                                    "runAfter": {},
+                                    "else": {
+                                        "actions": {
+                                            "Patch_Conditional_Access_Policy_to_exclude_Break_Glass_Account": {
+                                                "runAfter": {},
+                                                "type": "Http",
+                                                "inputs": {
+                                                    "authentication": {
+                                                        "type": "Raw",
+                                                        "value": "Bearer @{body('Parse_Response_from_AAD_Token_response')?['access_token']} "
+                                                    },
+                                                    "body": {
+                                                        "conditions": {
+                                                            "users": {
+                                                                "excludeUsers": [
+                                                                    "@{body('Parse_Break_Glass_Account_Object_ID')?['value']}"
+                                                                ]
+                                                            }
+                                                        }
+                                                    },
+                                                    "headers": {
+                                                        "Content-Type": "application/json"
+                                                    },
+                                                    "method": "PATCH",
+                                                    "uri": "https://graph.microsoft.com/beta/conditionalAccess/policies/@{items('For_each')?['id']}"
+                                                },
+                                                "runtimeConfiguration": {
+                                                    "secureData": {
+                                                        "properties": [
+                                                            "inputs"
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "contains": [
+                                                    "@items('For_each')?['conditions']?['users']?['excludeUsers']",
+                                                    "@body('Parse_Break_Glass_Account_Object_ID')?['value']"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_response_containing_all_CA_policies": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Get_AAD_token_using_Delegated_flow": {
+                            "runAfter": {
+                                "Parse_Break_Glass_Account_Object_ID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "body": "client_id=@{body('Parse_ClientID_from_KeyVault_Get_Response')?['value']}&client_secret=@{body('Parse_ClientSecret_from_KeyVault_Get_Response')?['value']}&grant_type=password&resource=https%3A%2F%2Fgraph.microsoft.com%2F&username=@{body('Parse_BC_Automation_Account_Username')?['value']}&scope=openid&password=@{body('Parse_BC_Automation_Account_Secret_')?['value']}",
+                                "headers": {
+                                    "Content-Type": "application/x-www-form-urlencoded"
+                                },
+                                "method": "POST",
+                                "uri": "https://login.microsoftonline.com/vikascontosotest.onmicrosoft.com/oauth2/token"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Get_BC_Automation_Account_Secret": {
+                            "runAfter": {
+                                "Parse_BC_Automation_Account_Username": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://vault.azure.net",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "queries": {
+                                    "api-version": "2016-10-01"
+                                },
+                                "uri": "@parameters('keyvaultBCSecret')"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Get_BC_Automation_Account_Username_from_KeyVault_using_Managed_Identity__": {
+                            "runAfter": {
+                                "Parse_TenantID_from_KeyVault_Get_Response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://vault.azure.net",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "queries": {
+                                    "api-version": "2016-10-01"
+                                },
+                                "uri": "@parameters('keyvaultBCUsername')"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Get_Break_Glass_Account_Object_ID_from_KeyVault": {
+                            "runAfter": {
+                                "Parse_BC_Automation_Account_Secret_": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://vault.azure.net",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "queries": {
+                                    "api-version": "2016-10-01"
+                                },
+                                "uri": "@parameters('keyvaultBreakGlassObjectId')"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Get_ClientID_from_KeyVault_using_Managed_Identity": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://vault.azure.net",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "queries": {
+                                    "api-version": "2016-10-01"
+                                },
+                                "uri": "@parameters('keyvaultClientID')"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "outputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Get_ClientSecret_from_KeyVault_using_Managed_Identity_": {
+                            "runAfter": {
+                                "Parse_ClientID_from_KeyVault_Get_Response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://vault.azure.net",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "queries": {
+                                    "api-version": "2016-10-01"
+                                },
+                                "uri": "@parameters('keyvaultClientSecret')"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Get_TenantID_from_KeyVault_using_Managed_Identity": {
+                            "runAfter": {
+                                "Parse_ClientSecret_from_KeyVault_Get_Response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://vault.azure.net",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "queries": {
+                                    "api-version": "2016-10-01"
+                                },
+                                "uri": "@parameters('keyvaultTenantID')"
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_BC_Automation_Account_Secret_": {
+                            "runAfter": {
+                                "Get_BC_Automation_Account_Secret": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_BC_Automation_Account_Secret')",
+                                "schema": {
+                                    "properties": {
+                                        "attributes": {
+                                            "properties": {
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "recoveryLevel": {
+                                                    "type": "string"
+                                                },
+                                                "updated": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_BC_Automation_Account_Username": {
+                            "runAfter": {
+                                "Get_BC_Automation_Account_Username_from_KeyVault_using_Managed_Identity__": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_BC_Automation_Account_Username_from_KeyVault_using_Managed_Identity__')",
+                                "schema": {
+                                    "properties": {
+                                        "attributes": {
+                                            "properties": {
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "recoveryLevel": {
+                                                    "type": "string"
+                                                },
+                                                "updated": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_Break_Glass_Account_Object_ID": {
+                            "runAfter": {
+                                "Get_Break_Glass_Account_Object_ID_from_KeyVault": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_Break_Glass_Account_Object_ID_from_KeyVault')",
+                                "schema": {
+                                    "properties": {
+                                        "attributes": {
+                                            "properties": {
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "recoveryLevel": {
+                                                    "type": "string"
+                                                },
+                                                "updated": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_ClientID_from_KeyVault_Get_Response": {
+                            "runAfter": {
+                                "Get_ClientID_from_KeyVault_using_Managed_Identity": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_ClientID_from_KeyVault_using_Managed_Identity')",
+                                "schema": {
+                                    "properties": {
+                                        "attributes": {
+                                            "properties": {
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "recoveryLevel": {
+                                                    "type": "string"
+                                                },
+                                                "updated": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_ClientSecret_from_KeyVault_Get_Response": {
+                            "runAfter": {
+                                "Get_ClientSecret_from_KeyVault_using_Managed_Identity_": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_ClientSecret_from_KeyVault_using_Managed_Identity_')",
+                                "schema": {
+                                    "properties": {
+                                        "attributes": {
+                                            "properties": {
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "recoveryLevel": {
+                                                    "type": "string"
+                                                },
+                                                "updated": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_Response_from_AAD_Token_response": {
+                            "runAfter": {
+                                "Get_AAD_token_using_Delegated_flow": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_AAD_token_using_Delegated_flow')",
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "expires_in": {
+                                            "type": "string"
+                                        },
+                                        "expires_on": {
+                                            "type": "string"
+                                        },
+                                        "ext_expires_in": {
+                                            "type": "string"
+                                        },
+                                        "not_before": {
+                                            "type": "string"
+                                        },
+                                        "refresh_token": {
+                                            "type": "string"
+                                        },
+                                        "resource": {
+                                            "type": "string"
+                                        },
+                                        "scope": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_TenantID_from_KeyVault_Get_Response": {
+                            "runAfter": {
+                                "Get_TenantID_from_KeyVault_using_Managed_Identity": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_TenantID_from_KeyVault_using_Managed_Identity')",
+                                "schema": {
+                                    "properties": {
+                                        "attributes": {
+                                            "properties": {
+                                                "created": {
+                                                    "type": "integer"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "recoveryLevel": {
+                                                    "type": "string"
+                                                },
+                                                "updated": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "secureData": {
+                                    "properties": [
+                                        "inputs"
+                                    ]
+                                }
+                            }
+                        },
+                        "Parse_response_containing_all_CA_policies": {
+                            "runAfter": {
+                                "Retrieve_all_CA_Policies": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Retrieve_all_CA_Policies')",
+                                "schema": {
+                                    "properties": {
+                                        "@@odata.context": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "conditions": {
+                                                        "properties": {
+                                                            "applications": {
+                                                                "properties": {
+                                                                    "excludeApplications": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "includeApplications": {
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": "array"
+                                                                    },
+                                                                    "includeUserActions": {
+                                                                        "type": "array"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "clientAppTypes": {
+                                                                "type": "array"
+                                                            },
+                                                            "deviceStates": {},
+                                                            "locations": {},
+                                                            "platforms": {},
+                                                            "signInRiskLevels": {
+                                                                "type": "array"
+                                                            },
+                                                            "users": {
+                                                                "properties": {
+                                                                    "excludeGroups": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "excludeRoles": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "excludeUsers": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "includeGroups": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "includeRoles": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "includeUsers": {
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": "array"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "createdDateTime": {},
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "grantControls": {
+                                                        "properties": {
+                                                            "builtInControls": {
+                                                                "items": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "customAuthenticationFactors": {
+                                                                "type": "array"
+                                                            },
+                                                            "operator": {
+                                                                "type": "string"
+                                                            },
+                                                            "termsOfUse": {
+                                                                "type": "array"
+                                                            }
+                                                        },
+                                                        "type": [
+                                                            "object",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "modifiedDateTime": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "sessionControls": {},
+                                                    "state": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Retrieve_all_CA_Policies": {
+                            "runAfter": {
+                                "Parse_Response_from_AAD_Token_response": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://graph.microsoft.com",
+                                    "clientId": "@body('Parse_ClientID_from_KeyVault_Get_Response')?['value']",
+                                    "secret": "@body('Parse_ClientSecret_from_KeyVault_Get_Response')?['value']",
+                                    "tenant": "@body('Parse_TenantID_from_KeyVault_Get_Response')?['value']",
+                                    "type": "ActiveDirectoryOAuth"
+                                },
+                                "method": "GET",
+                                "uri": "https://graph.microsoft.com/beta/conditionalAccess/policies"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
