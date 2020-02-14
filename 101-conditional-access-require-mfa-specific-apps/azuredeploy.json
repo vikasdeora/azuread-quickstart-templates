@@ -8,27 +8,27 @@
             "type": "String"
         },
 	"audience": {
-            "defaultValue": "audienceValue",
+            "defaultValue": "fill after deployment",
             "type": "String"
         },
 	"clientID": {
-            "defaultValue": "clientIDValue",
+            "defaultValue": "fill after deployment",
             "type": "String"
         },
 	"clientSecret": {
-            "defaultValue": "clientSecretValue",
+            "defaultValue": "fill after deployment",
             "type": "String"
         },
 	"conditionalAccessBaseUrl": {
-            "defaultValue": "conditionalAccess/policies",
+            "defaultValue": "fill after deployment",
             "type": "String"
         },
 	"includeApplications": {
-            "defaultValue": [],
+            "defaultValue": ["fill after deployment"],
             "type": "Array"
         },
 	"includeUsers": {
-            "defaultValue": [],
+            "defaultValue": ["fill after deployment"],
             "type": "Array"
         },
 	"msGraphVersion": {
@@ -36,7 +36,7 @@
             "type": "String"
         },
 	"tenantID": {
-            "defaultValue": "tenantIDValue",
+            "defaultValue": "fill after deployment",
             "type": "String"
         }
 	
