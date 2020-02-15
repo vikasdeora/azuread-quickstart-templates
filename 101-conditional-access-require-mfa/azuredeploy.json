@@ -5,11 +5,7 @@
     "parameters": {
         "policyName": 
 	{
-            "defaultValue": "security template: require mfa specific apps",
-            "type": "String"
-        },
-	"audience": {
-            "defaultValue": "audienceValue",
+            "defaultValue": "security template: require mfa",
             "type": "String"
         },
 	"clientID": {
@@ -18,22 +14,6 @@
         },
 	"clientSecret": {
             "defaultValue": "clientSecretValue",
-            "type": "String"
-        },
-	"conditionalAccessBaseUrl": {
-            "defaultValue": "conditionalAccess/policies",
-            "type": "String"
-        },
-	"includeApplications": {
-            "defaultValue": [],
-            "type": "Array"
-        },
-	"includeUsers": {
-            "defaultValue": [],
-            "type": "Array"
-        },
-	"msGraphVersion": {
-            "defaultValue": "beta",
             "type": "String"
         },
 	"tenantID": {
@@ -55,10 +35,7 @@
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {
-                        "audience": {
-                            "defaultValue": "[parameters('audience')]",
-                            "type": "String"
-                        },
+                     
                         "clientID": {
                             "defaultValue": "[parameters('clientID')]",
                             "type": "String"
@@ -67,22 +44,7 @@
                             "defaultValue": "[parameters('clientSecret')]",
                             "type": "SecureString"
                         },
-                        "conditionalAccessBaseUrl": {
-                            "defaultValue": "[parameters('conditionalAccessBaseUrl')]",
-                            "type": "String"
-                        },
-                        "includeApplications": {
-                            "defaultValue": "[parameters('includeApplications')]",
-                            "type": "Array"
-                        },
-                        "includeUsers": {
-                            "defaultValue": "[parameters('includeUsers')]",
-                            "type": "Array"
-                        },
-                        "msGraphVersion": {
-                            "defaultValue": "[parameters('msGraphVersion')]",
-                            "type": "String"
-                        },
+                      
                         "tenantID": {
                             "defaultValue": "[parameters('tenantID')]",
                             "type": "String"
@@ -98,7 +60,7 @@
                         }
                     },
                     "actions": {
-                        "Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App": {
+                        "Compose_JSON_for_Security_Templates:_Require_MFA": {
                             "runAfter": {},
                             "type": "Compose",
                             "inputs": {
@@ -145,27 +107,27 @@
                                 ]
                             }
                         },
-                        "[POST]_Security_Templates:_Require_MFA_Specific_App": {
+                        "[POST]_Security_Templates:_Require_MFA": {
                             "runAfter": {
-                                "Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App": [
+                                "Compose_JSON_for_Security_Templates:_Require_MFA": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Http",
                             "inputs": {
                                 "authentication": {
-                                    "audience": "@parameters('audience')",
+                                    "audience": "https://graph.microsoft.com",
                                     "clientId": "@parameters('clientID')",
                                     "secret": "@parameters('clientSecret')",
                                     "tenant": "@parameters('tenantID')",
                                     "type": "ActiveDirectoryOAuth"
                                 },
-                                "body": "@outputs('Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App')",
+                                "body": "@outputs('Compose_JSON_for_Security_Templates:_Require_MFA')",
                                 "headers": {
                                     "Content-Type": "application/json"
                                 },
                                 "method": "POST",
-                                "uri": "https://graph.microsoft.com/@{parameters('msGraphVersion')}/@{parameters('conditionalAccessBaseUrl')}"
+                                "uri": "https://graph.microsoft.com/beta/conditionalAccess/policies"
                             }
                         }
                     },
