@@ -2,51 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "policyName": 
-	{
+        "workflows_SecurityTemplateRequireMfa_name": {
             "defaultValue": "SecurityTemplateRequireMfa",
             "type": "String"
-        },
-	"audience": {
-            "defaultValue": "fill after deployment",
-            "type": "String"
-        },
-	"clientID": {
-            "defaultValue": "fill after deployment",
-            "type": "String"
-        },
-	"clientSecret": {
-            "defaultValue": "fill after deployment",
-            "type": "String"
-        },
-	"conditionalAccessBaseUrl": {
-            "defaultValue": "fill after deployment",
-            "type": "String"
-        },
-	"includeApplications": {
-            "defaultValue": ["fill after deployment"],
-            "type": "Array"
-        },
-	"includeUsers": {
-            "defaultValue": ["fill after deployment"],
-            "type": "Array"
-        },
-	"msGraphVersion": {
-            "defaultValue": "beta",
-            "type": "String"
-        },
-	"tenantID": {
-            "defaultValue": "fill after deployment",
-            "type": "String"
         }
-	
     },
     "variables": {},
     "resources": [
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('policyName')]",
+            "name": "[parameters('workflows_SecurityTemplateRequireMfa_name')]",
             "location": "centralus",
             "properties": {
                 "state": "Enabled",
@@ -55,35 +21,39 @@
                     "contentVersion": "1.0.0.0",
                     "parameters": {
                         "audience": {
-                            "defaultValue": "[parameters('audience')]",
+                            "defaultValue": "fill after deployment",
                             "type": "String"
                         },
                         "clientID": {
-                            "defaultValue": "[parameters('clientID')]",
+                            "defaultValue": "fill after deployment",
                             "type": "String"
                         },
                         "clientSecret": {
-                            "defaultValue": "[parameters('clientSecret')]",
+                            "defaultValue": "fill after deployment",
                             "type": "SecureString"
                         },
                         "conditionalAccessBaseUrl": {
-                            "defaultValue": "[parameters('conditionalAccessBaseUrl')]",
+                            "defaultValue": "fill after deployment",
                             "type": "String"
                         },
                         "includeApplications": {
-                            "defaultValue": "[parameters('includeApplications')]",
+                            "defaultValue": [
+                                "fill after deployment"
+                            ],
                             "type": "Array"
                         },
                         "includeUsers": {
-                            "defaultValue": "[parameters('includeUsers')]",
+                            "defaultValue": [
+                                "fill after deployment"
+                            ],
                             "type": "Array"
                         },
                         "msGraphVersion": {
-                            "defaultValue": "[parameters('msGraphVersion')]",
+                            "defaultValue": "beta",
                             "type": "String"
                         },
                         "tenantID": {
-                            "defaultValue": "[parameters('tenantID')]",
+                            "defaultValue": "fill after deployment",
                             "type": "String"
                         }
                     },
@@ -97,68 +67,70 @@
                         }
                     },
                     "actions": {
-                        "Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App": {
+                        "Compose_JSON_for_Security_Template:_Access_to_EXO_requires_MFA": {
                             "runAfter": {},
                             "type": "Compose",
                             "inputs": {
-                                "value": [
-                                    {
-                                        "conditions": {
-                                            "applications": {
-                                                "excludeApplications": [],
-                                                "includeApplications": "@parameters('includeApplications')",
-                                                "includeUserActions": []
-                                            },
-                                            "clientAppTypes": [],
-                                            "deviceStates": null,
-                                            "locations": null,
-                                            "platforms": null,
-                                            "signInRiskLevels": [],
-                                            "users": {
-                                                "excludeGroups": [],
-                                                "excludeRoles": [],
-                                                "excludeUsers": [],
-                                                "includeGroups": [],
-                                                "includeRoles": [],
-                                                "includeUsers": "@parameters('includeUsers')"
-                                            }
-                                        },
-                                        "displayName": "Security Templates: Require MFA Specific App",
-                                        "grantControls": {
-                                            "builtInControls": [
-                                                "mfa"
-                                            ],
-                                            "customAuthenticationFactors": [],
-                                            "operator": "OR",
-                                            "termsOfUse": []
-                                        },
-                                        "sessionControls": null,
-                                        "state": "enabled"
+                                "conditions": {
+                                    "applications": {
+                                        "excludeApplications": [],
+                                        "includeApplications": [
+                                            "All"
+                                        ],
+                                        "includeUserActions": []
+                                    },
+                                    "clientAppTypes": [],
+                                    "deviceStates": null,
+                                    "locations": null,
+                                    "platforms": null,
+                                    "signInRiskLevels": [],
+                                    "users": {
+                                        "excludeGroups": [],
+                                        "excludeRoles": [],
+                                        "excludeUsers": [],
+                                        "includeGroups": [],
+                                        "includeRoles": [],
+                                        "includeUsers": [
+                                            "All"
+                                        ]
                                     }
-                                ]
+                                },
+                                "createdDateTime": null,
+                                "displayName": "Template: Require MFA",
+                                "grantControls": {
+                                    "builtInControls": [
+                                        "mfa"
+                                    ],
+                                    "customAuthenticationFactors": [],
+                                    "operator": "OR",
+                                    "termsOfUse": []
+                                },
+                                "modifiedDateTime": null,
+                                "sessionControls": null,
+                                "state": "enabledForReportingButNotEnforced"
                             }
                         },
-                        "[POST]_Security_Templates:_Require_MFA_Specific_App": {
+                        "[POST]_Security_Template:_Access_to_EXO_requires_MFA": {
                             "runAfter": {
-                                "Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App": [
+                                "Compose_JSON_for_Security_Template:_Access_to_EXO_requires_MFA": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Http",
                             "inputs": {
                                 "authentication": {
-                                    "audience": "@parameters('audience')",
-                                    "clientId": "@parameters('clientID')",
-                                    "secret": "@parameters('clientSecret')",
-                                    "tenant": "@parameters('tenantID')",
+                                    "audience": "https://graph.microsoft.com",
+                                    "clientId": "",
+                                    "secret": "",
+                                    "tenant": "",
                                     "type": "ActiveDirectoryOAuth"
                                 },
-                                "body": "@outputs('Compose_JSON_for_Security_Templates:_Require_MFA_Specific_App')",
+                                "body": "@outputs('Compose_JSON_for_Security_Template:_Access_to_EXO_requires_MFA')",
                                 "headers": {
                                     "Content-Type": "application/json"
                                 },
                                 "method": "POST",
-                                "uri": "https://graph.microsoft.com/@{parameters('msGraphVersion')}/@{parameters('conditionalAccessBaseUrl')}"
+                                "uri": "https://graph.microsoft.com/beta/conditionalAccess/policies"
                             }
                         }
                     },
