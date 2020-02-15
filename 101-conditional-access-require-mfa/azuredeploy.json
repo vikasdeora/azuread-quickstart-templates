@@ -103,39 +103,45 @@
                             "type": "Compose",
                             "inputs": {
                                 "value": [
-                                    {
-                                        "conditions": {
-                                            "applications": {
-                                                "excludeApplications": [],
-                                                "includeApplications": "@parameters('includeApplications')",
-                                                "includeUserActions": []
-                                            },
-                                            "clientAppTypes": [],
-                                            "deviceStates": null,
-                                            "locations": null,
-                                            "platforms": null,
-                                            "signInRiskLevels": [],
-                                            "users": {
-                                                "excludeGroups": [],
-                                                "excludeRoles": [],
-                                                "excludeUsers": [],
-                                                "includeGroups": [],
-                                                "includeRoles": [],
-                                                "includeUsers": "@parameters('includeUsers')"
-                                            }
-                                        },
-                                        "displayName": "Security Templates: Require MFA Specific App",
-                                        "grantControls": {
-                                            "builtInControls": [
-                                                "mfa"
-                                            ],
-                                            "customAuthenticationFactors": [],
-                                            "operator": "OR",
-                                            "termsOfUse": []
-                                        },
-                                        "sessionControls": null,
-                                        "state": "enabled"
-                                    }
+                                   {
+  "conditions": {
+    "applications": {
+      "excludeApplications": [],
+      "includeApplications": [
+        "All"
+      ],
+      "includeUserActions": []
+    },
+    "clientAppTypes": [],
+    "deviceStates": null,
+    "locations": null,
+    "platforms": null,
+    "signInRiskLevels": [],
+    "users": {
+      "excludeGroups": [],
+      "excludeRoles": [],
+      "excludeUsers": [],
+      "includeGroups": [],
+      "includeRoles": [],
+      "includeUsers": [
+        "All"
+      ]
+    }
+  },
+  "createdDateTime": null,
+  "displayName": "Template: Require MFA",
+  "grantControls": {
+    "builtInControls": [
+      "mfa"
+    ],
+    "customAuthenticationFactors": [],
+    "operator": "OR",
+    "termsOfUse": []
+  },
+  "modifiedDateTime": null,
+  "sessionControls": null,
+  "state": "enabledForReportingButNotEnforced"
+}
                                 ]
                             }
                         },
